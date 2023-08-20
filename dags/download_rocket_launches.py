@@ -1,19 +1,18 @@
 import json
 import pathlib
 
-import airflow
+import airflow.utils.dates
 import requests
 import requests.exceptions as requests_exceptions
 from airflow import DAG
 from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
 
-OUTPUT_DIR = "/tmp/images"
-
 dag = DAG(
-    dag_id="listing_2_02",
+    dag_id="download_rocket_launches",
+    description="Download rocket pictures of recently launched rockets.",
     start_date=airflow.utils.dates.days_ago(14),
-    schedule_interval=None,
+    schedule_interval="@daily",
 )
 
 download_launches = BashOperator(
@@ -25,7 +24,7 @@ download_launches = BashOperator(
 
 def _get_pictures():
     # Ensure directory exists
-    pathlib.Path(OUTPUT_DIR).mkdir(parents=True, exist_ok=True)
+    pathlib.Path("/tmp/images").mkdir(parents=True, exist_ok=True)
 
     # Download all pictures in launches.json
     with open("/tmp/launches.json") as f:
